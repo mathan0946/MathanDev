@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { projects } from '../data/content'
@@ -97,28 +97,51 @@ function ProjectVisual({ tone, accuracy, accuracyLabel }) {
   )
 }
 
-function Project({ p, i }) {
-  const ref = useRef(null)
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ['start end', 'end start'],
-  })
-  const y = useTransform(scrollYProgress, [0, 1], [40, -40])
-  const flipped = i % 2 === 1
+/* Card optimized for horizontal pin-scroll: visual on top, copy below. */
+function ProjectCard({ p, i, total }) {
+  return (
+    <article className="hcard" data-index={String(i + 1).padStart(2, '0')}>
+      <div className="hcard__visual">
+        <ProjectVisual tone={p.tone} accuracy={p.accuracy} accuracyLabel={p.accuracyLabel} />
+      </div>
+      <div className="hcard__body">
+        <div className="hcard__meta">
+          <span className="hcard__index">{p.index}</span>
+          <span className="hcard__counter">{String(i + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}</span>
+          <span className="hcard__year">{p.year}</span>
+        </div>
+        <h3 className="hcard__title">{p.title}</h3>
+        <p className="hcard__subtitle">{p.subtitle}</p>
+        <p className="hcard__summary">{p.summary}</p>
+        <div className="hcard__foot">
+          <div className="hcard__stack">
+            {p.stack.slice(0, 5).map((s) => (
+              <span key={s} className="chip">{s}</span>
+            ))}
+          </div>
+          <a className="project__link" href={p.url} target="_blank" rel="noreferrer">
+            View repo <span aria-hidden>↗</span>
+          </a>
+        </div>
+      </div>
+    </article>
+  )
+}
 
+/* Vertical fallback used on small screens. */
+function ProjectVertical({ p, i }) {
+  const flipped = i % 2 === 1
   return (
     <motion.article
-      ref={ref}
       className={`project ${flipped ? 'project--flip' : ''}`}
       initial={{ opacity: 0, y: 60 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-100px' }}
       transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
     >
-      <motion.div className="project__visual" style={{ y }}>
+      <div className="project__visual">
         <ProjectVisual tone={p.tone} accuracy={p.accuracy} accuracyLabel={p.accuracyLabel} />
-      </motion.div>
-
+      </div>
       <div className="project__body">
         <div className="project__meta">
           <span className="project__index">{p.index}</span>
@@ -127,18 +150,12 @@ function Project({ p, i }) {
         <h3 className="project__title">{p.title}</h3>
         <p className="project__subtitle">{p.subtitle}</p>
         <p className="project__summary">{p.summary}</p>
-
         <ul className="project__points">
-          {p.points.map((pt, idx) => (
-            <li key={idx}>{pt}</li>
-          ))}
+          {p.points.map((pt, idx) => <li key={idx}>{pt}</li>)}
         </ul>
-
         <div className="project__foot">
           <div className="project__stack">
-            {p.stack.map((s) => (
-              <span key={s} className="chip">{s}</span>
-            ))}
+            {p.stack.map((s) => <span key={s} className="chip">{s}</span>)}
           </div>
           <a className="project__link" href={p.url} target="_blank" rel="noreferrer">
             View repo <span aria-hidden>↗</span>
@@ -149,8 +166,70 @@ function Project({ p, i }) {
   )
 }
 
+/* Horizontal pin-scroll track. Outer height = N * 100vh; inner sticks
+   and translates horizontally so vertical scroll feels like swipe. */
+function HorizontalWork({ items }) {
+  const outerRef = useRef(null)
+  const trackRef = useRef(null)
+  const [distance, setDistance] = useState(0)
+
+  useLayoutEffect(() => {
+    const update = () => {
+      if (!trackRef.current) return
+      const trackW = trackRef.current.scrollWidth
+      const vw = window.innerWidth
+      setDistance(Math.max(0, trackW - vw))
+    }
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [items.length])
+
+  const { scrollYProgress } = useScroll({
+    target: outerRef,
+    offset: ['start start', 'end end'],
+  })
+  const x = useTransform(scrollYProgress, [0, 1], [0, -distance])
+  const progress = useTransform(scrollYProgress, [0, 1], ['0%', '100%'])
+
+  return (
+    <section
+      ref={outerRef}
+      className="hwork"
+      style={{ height: `${(items.length + 0.5) * 100}vh` }}
+      aria-label="Selected projects, horizontal scroll"
+    >
+      <div className="hwork__sticky">
+        <div className="hwork__hud">
+          <span className="hwork__hud-label">SCROLL TO ADVANCE</span>
+          <div className="hwork__hud-bar"><motion.span style={{ width: progress }} /></div>
+        </div>
+        <motion.div ref={trackRef} className="hwork__track" style={{ x }}>
+          {items.map((p, i) => (
+            <ProjectCard key={p.id} p={p} i={i} total={items.length} />
+          ))}
+          <div className="hwork__end">
+            <span className="eyebrow">END · 03 / 03</span>
+            <p>Keep scrolling — there's more below.</p>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  )
+}
+
 export default function Work() {
   const major = projects.filter((p) => p.major)
+  const [horizontal, setHorizontal] = useState(false)
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 900px)')
+    const update = () => setHorizontal(mq.matches)
+    update()
+    mq.addEventListener('change', update)
+    return () => mq.removeEventListener('change', update)
+  }, [])
+
   return (
     <section id="work" className="section-pad work">
       <div className="container">
@@ -167,11 +246,13 @@ export default function Work() {
         </header>
       </div>
 
-      <div className="container work__list">
-        {major.map((p, i) => (
-          <Project key={p.id} p={p} i={i} />
-        ))}
-      </div>
+      {horizontal ? (
+        <HorizontalWork items={major} />
+      ) : (
+        <div className="container work__list">
+          {major.map((p, i) => <ProjectVertical key={p.id} p={p} i={i} />)}
+        </div>
+      )}
 
       <div className="container work__cta">
         <Link to="/archive" className="work__archive-btn">

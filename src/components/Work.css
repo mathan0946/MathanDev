@@ -279,3 +279,191 @@
   .project--flip .project__visual { order: 0; }
   .pv { aspect-ratio: 16 / 10; }
 }
+
+/* ============================================================
+   Horizontal pin-scroll Work track (>= 900px)
+   ============================================================ */
+.hwork {
+  position: relative;
+  width: 100%;
+}
+.hwork__sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+.hwork__hud {
+  position: absolute;
+  top: 96px;
+  left: var(--gutter);
+  right: var(--gutter);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  z-index: 3;
+  pointer-events: none;
+}
+.hwork__hud-label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.3em;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+}
+.hwork__hud-bar {
+  position: relative;
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+  overflow: hidden;
+}
+.hwork__hud-bar span {
+  display: block;
+  height: 100%;
+  background: var(--ink);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
+}
+
+.hwork__track {
+  display: flex;
+  align-items: center;
+  gap: clamp(2rem, 4vw, 3.5rem);
+  padding-inline: var(--gutter);
+  will-change: transform;
+}
+
+.hcard {
+  position: relative;
+  flex: 0 0 auto;
+  width: min(82vw, 1100px);
+  height: 78vh;
+  max-height: 720px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1.5rem, 3vw, 2.8rem);
+  align-items: stretch;
+  padding: clamp(1.6rem, 2.4vw, 2.4rem);
+  border-radius: 24px;
+  border: 1px solid var(--line-strong);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)),
+    rgba(8, 8, 12, 0.6);
+  backdrop-filter: blur(14px);
+  overflow: hidden;
+  box-shadow:
+    0 60px 120px -50px rgba(0, 0, 0, 0.9),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.hcard::before {
+  content: attr(data-index);
+  position: absolute;
+  top: 1.4rem;
+  right: 1.6rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  color: var(--ink-faint);
+}
+.hcard::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 50% at 0% 0%, rgba(255,255,255,0.06), transparent 60%),
+    radial-gradient(50% 50% at 100% 100%, rgba(255,255,255,0.04), transparent 60%);
+  border-radius: inherit;
+}
+.hcard__visual { display: flex; align-items: center; }
+.hcard__visual .pv { width: 100%; aspect-ratio: auto; height: 100%; }
+
+.hcard__body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1rem;
+  z-index: 1;
+}
+.hcard__meta {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+}
+.hcard__index {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 1.2rem;
+  color: var(--ink);
+  letter-spacing: 0;
+  text-transform: none;
+}
+.hcard__counter { color: var(--ink-soft); }
+.hcard__title {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(2rem, 3.4vw, 3.3rem);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+}
+.hcard__subtitle {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+.hcard__summary {
+  font-size: 1.02rem;
+  color: var(--ink);
+  max-width: 50ch;
+  margin-top: 0.4rem;
+}
+.hcard__foot {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--line);
+}
+.hcard__stack { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+/* "End" terminal card */
+.hwork__end {
+  flex: 0 0 auto;
+  width: min(48vw, 560px);
+  height: 78vh;
+  max-height: 720px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.8rem;
+  padding: 2.4rem;
+  border-radius: 24px;
+  border: 1px dashed var(--line-strong);
+  color: var(--ink-soft);
+}
+.hwork__end p {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: clamp(1.4rem, 2.4vw, 2rem);
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+
+@media (max-width: 1100px) {
+  .hcard { grid-template-columns: 1fr; }
+  .hcard__visual { max-height: 38%; }
+}

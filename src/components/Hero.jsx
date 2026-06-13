@@ -4,6 +4,7 @@ import { profile } from '../data/content'
 import Magnetic from './Magnetic'
 import Counter from './Counter'
 import Tilt from './Tilt'
+import Scramble from './Scramble'
 import './Hero.css'
 
 const line = {
@@ -84,7 +85,9 @@ export default function Hero() {
                   initial="hidden"
                   animate="show"
                 >
-                  {i === 1 ? <em>{l}</em> : l}
+                  {i === 1
+                    ? <em><Scramble text={l} delay={350 + i * 280} speed={32} /></em>
+                    : <Scramble text={l} delay={350 + i * 280} speed={32} />}
                 </motion.span>
               </span>
             ))}
