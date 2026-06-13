@@ -23,6 +23,7 @@
   background: #f4f1ea;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   box-shadow: 0 10px 24px -18px rgba(0, 0, 0, 0.35);
+  overflow: visible;
 }
 .nav.is-scrolled {
   background: #ffffff;
@@ -38,6 +39,7 @@
   margin: 0 auto;
   padding: 0 clamp(16px, 3vw, 36px);
   height: 56px;
+  overflow: visible;
 }
 
 /* Side link rows — sit flush, no pill background */
@@ -73,33 +75,43 @@
   color: #74747e;
 }
 
-/* CENTER brand — text only, flat */
+/* CENTER brand — trapezoid tab \______/ hanging below the bar */
 .nav__brand {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1px;
-  padding: 0 1rem;
+  justify-content: center;
+  gap: 2px;
+  padding: 0 clamp(34px, 4.5vw, 60px) 0;
   text-align: center;
-  transition: transform 0.4s var(--ease);
+  align-self: start;
+  height: 78px;
+  background: #f4f1ea;
+  border: none;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 26px) 100%, 26px 100%);
+  filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.28));
+  position: relative;
+  z-index: 3;
+  transition: transform 0.4s var(--ease), background 0.4s;
 }
-.nav__brand:hover { transform: translateY(-1px); }
+.nav.is-scrolled .nav__brand { background: #ffffff; }
+.nav__brand:hover { transform: translateY(2px); }
 .nav__brand-text {
   font-family: var(--display);
-  font-weight: 500;
-  font-size: 1.05rem;
+  font-weight: 600;
+  font-size: clamp(1.2rem, 1.7vw, 1.55rem);
   line-height: 1;
-  letter-spacing: 0.32em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: #0a0a0d;
 }
 .nav__brand-sub {
   font-family: var(--mono);
   font-size: 0.48rem;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
   color: #74747e;
-  margin-top: 3px;
+  margin-top: 6px;
 }
 
 /* Right-side CTA + GitHub icon — smaller to match the slim bar */
@@ -198,7 +210,14 @@
   .nav__inner { grid-template-columns: 1fr auto 1fr; }
   .nav__pill--left,
   .nav__pill--right { display: none; }
-  .nav__brand { grid-column: 2; }
+  .nav__brand {
+    grid-column: 2;
+    height: 64px;
+    padding: 0 2rem;
+    border-radius: 0;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 18px) 100%, 18px 100%);
+  }
+  .nav__brand-text { font-size: 1.05rem; }
   .nav__menu {
     grid-column: 3;
     justify-self: end;
@@ -210,6 +229,10 @@
   }
 }
 @media (max-width: 540px) {
-  .nav__brand-text { font-size: 0.95rem; letter-spacing: 0.24em; }
-  .nav__brand-sub { font-size: 0.46rem; letter-spacing: 0.22em; }
+  .nav__brand {
+    height: 56px;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 100%, 14px 100%);
+  }
+  .nav__brand-text { font-size: 0.95rem; letter-spacing: 0.14em; }
+  .nav__brand-sub { font-size: 0.44rem; letter-spacing: 0.22em; }
 }
