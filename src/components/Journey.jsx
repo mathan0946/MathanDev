@@ -1,5 +1,7 @@
-import { motion } from 'framer-motion'
+import { useRef } from 'react'
+import { motion, useScroll, useSpring } from 'framer-motion'
 import { journey, achievements } from '../data/content'
+import AnimatedHeading from './AnimatedHeading'
 import './Journey.css'
 
 const rise = {
@@ -12,6 +14,13 @@ const rise = {
 }
 
 export default function Journey() {
+  const timelineRef = useRef(null)
+  const { scrollYProgress } = useScroll({
+    target: timelineRef,
+    offset: ['start 75%', 'end 60%'],
+  })
+  const lineScale = useSpring(scrollYProgress, { stiffness: 90, damping: 28, restDelta: 0.001 })
+
   return (
     <section id="journey" className="section-pad journey">
       <div className="container journey__grid">
@@ -19,12 +28,11 @@ export default function Journey() {
         <div className="journey__main">
           <header className="section-head">
             <span className="eyebrow">The journey</span>
-            <h2>
-              Still <em>early</em>, already building.
-            </h2>
+            <AnimatedHeading text="Still early, already building." emWords={[1]} />
           </header>
 
-          <ol className="timeline">
+          <ol className="timeline" ref={timelineRef}>
+            <motion.span className="timeline__progress" style={{ scaleY: lineScale }} aria-hidden />
             {journey.map((j, i) => (
               <motion.li
                 key={i}

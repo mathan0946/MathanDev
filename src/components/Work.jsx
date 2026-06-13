@@ -1,6 +1,8 @@
 import { useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { projects } from '../data/content'
+import AnimatedHeading from './AnimatedHeading'
 import './Work.css'
 
 /* Abstract visual per project — pure CSS/SVG, themed by tone. */
@@ -148,25 +150,37 @@ function Project({ p, i }) {
 }
 
 export default function Work() {
+  const major = projects.filter((p) => p.major)
   return (
     <section id="work" className="section-pad work">
       <div className="container">
         <header className="section-head">
-          <span className="eyebrow">Featured work</span>
-          <h2>
-            Six systems, six <em>different problems</em>.
-          </h2>
+          <span className="eyebrow">Selected work</span>
+          <AnimatedHeading
+            text="Three flagship systems, three real-world problems."
+            emWords={[5, 6]}
+          />
           <p className="lede">
-            Each one started as a question I couldn’t stop thinking about — then
-            became something that runs. The rest live in the archive below.
+            The work I’m proudest of — each one shipped, each one solving something
+            that actually matters. The rest live in the full archive.
           </p>
         </header>
       </div>
 
       <div className="container work__list">
-        {projects.map((p, i) => (
+        {major.map((p, i) => (
           <Project key={p.id} p={p} i={i} />
         ))}
+      </div>
+
+      <div className="container work__cta">
+        <Link to="/archive" className="work__archive-btn">
+          <span className="work__archive-text">
+            <span className="work__archive-label">Explore the full archive</span>
+            <span className="work__archive-sub">30+ projects across AI, web, data &amp; systems</span>
+          </span>
+          <span className="work__archive-arrow" aria-hidden>→</span>
+        </Link>
       </div>
     </section>
   )

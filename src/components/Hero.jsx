@@ -1,6 +1,9 @@
+import { useRef } from 'react'
 import { motion } from 'framer-motion'
 import { profile } from '../data/content'
 import Magnetic from './Magnetic'
+import Counter from './Counter'
+import Tilt from './Tilt'
 import './Hero.css'
 
 const line = {
@@ -13,8 +16,21 @@ const line = {
 }
 
 export default function Hero() {
+  const heroRef = useRef(null)
+
+  // Move a soft spotlight to follow the cursor across the hero
+  const onMove = (e) => {
+    const el = heroRef.current
+    if (!el) return
+    const r = el.getBoundingClientRect()
+    el.style.setProperty('--mx', `${((e.clientX - r.left) / r.width) * 100}%`)
+    el.style.setProperty('--my', `${((e.clientY - r.top) / r.height) * 100}%`)
+  }
+
   return (
-    <section id="top" className="hero">
+    <section id="top" className="hero" ref={heroRef} onMouseMove={onMove}>
+      <div className="hero__spotlight" aria-hidden />
+
       <div className="container hero__grid">
         {/* Left — portrait + identity */}
         <motion.aside
@@ -24,15 +40,17 @@ export default function Hero() {
           transition={{ delay: 0.45, duration: 1, ease: [0.22, 1, 0.36, 1] }}
         >
           <motion.div
-            className="hero__portrait"
             animate={{ y: [0, -10, 0] }}
             transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
           >
-            <span className="hero__portrait-ring" aria-hidden />
-            <img src={profile.portrait} alt={`Portrait of ${profile.name}`} loading="eager" />
-            <span className="hero__portrait-tag">
-              <span className="hero__portrait-dot" /> Open to work
-            </span>
+            <Tilt max={12} className="hero__portrait" data-cursor="hover">
+              <span className="hero__portrait-ring" aria-hidden />
+              <span className="hero__portrait-frame" aria-hidden />
+              <img src={profile.portrait} alt={`Portrait of ${profile.name}`} loading="eager" />
+              <span className="hero__portrait-tag">
+                <span className="hero__portrait-dot" /> Open to work
+              </span>
+            </Tilt>
           </motion.div>
 
           <div className="hero__id">
@@ -43,6 +61,15 @@ export default function Hero() {
 
         {/* Right — the manifesto */}
         <div className="hero__lead">
+          <motion.span
+            className="hero__badge"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+          >
+            <span className="hero__badge-pulse" /> AI / ML Engineer · Building since day one
+          </motion.span>
+
           <h1 className="hero__headline" aria-label={profile.manifesto.join(' ')}>
             {profile.manifesto.map((l, i) => (
               <span className="hero__line" key={i}>
@@ -92,7 +119,7 @@ export default function Hero() {
           >
             {profile.stats.map((s) => (
               <div className="hero__stat" key={s.label}>
-                <dt>{s.value}</dt>
+                <dt><Counter value={s.value} /></dt>
                 <dd>{s.label}</dd>
               </div>
             ))}

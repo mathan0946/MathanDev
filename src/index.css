@@ -1,22 +1,35 @@
 /* ============================================================
-   Design tokens — "warm premium product"
-   Cream paper, ink text, a single clay accent. No neon, no dark mode.
+   Design tokens — "dark cinematic + warm glow"
+   Espresso base, warm-white ink, clay/amber accent, ambient light.
    ============================================================ */
 :root {
   /* Surfaces */
-  --paper: #f4efe7;
-  --paper-raised: #faf7f1;
-  --paper-sunk: #ece5d8;
-  --ink: #211c16;
-  --ink-soft: #5a5147;
-  --ink-faint: #8b8073;
-  --line: #ddd3c4;
+  --bg: #16120e;
+  --bg-deep: #100c09;
+  --bg-raised: #1f1a14;
+  --bg-glass: rgba(40, 33, 26, 0.55);
+  --bg-glass-strong: rgba(46, 38, 30, 0.78);
 
-  /* Accent — warm clay / terracotta */
-  --clay: #bf5b32;
-  --clay-soft: #d98b6a;
-  --clay-wash: #f0d9cd;
-  --sage: #6f7d5e;
+  /* Ink */
+  --ink: #f3ece1;
+  --ink-soft: #c2b6a6;
+  --ink-faint: #8a7d6d;
+
+  /* Lines */
+  --line: rgba(243, 236, 225, 0.1);
+  --line-strong: rgba(243, 236, 225, 0.18);
+
+  /* Accent — warm clay → amber */
+  --clay: #e07a4b;
+  --clay-bright: #f2955f;
+  --amber: #f0b35e;
+  --sage: #9bb07e;
+  --clay-wash: rgba(224, 122, 75, 0.14);
+
+  /* Gradients / glow */
+  --grad-warm: linear-gradient(120deg, #e07a4b, #f0b35e);
+  --glow-clay: radial-gradient(circle, rgba(224, 122, 75, 0.4), transparent 60%);
+  --glow-amber: radial-gradient(circle, rgba(240, 179, 94, 0.28), transparent 60%);
 
   /* Type */
   --display: 'Fraunces', Georgia, serif;
@@ -24,11 +37,12 @@
   --mono: 'JetBrains Mono', ui-monospace, monospace;
 
   /* Rhythm */
-  --container: 1240px;
-  --gutter: clamp(1.25rem, 5vw, 5rem);
-  --radius: 18px;
+  --container: 1280px;
+  --gutter: clamp(1.25rem, 5vw, 5.5rem);
+  --radius: 20px;
 
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -36,11 +50,11 @@
 html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
 
 body {
-  background: var(--paper);
+  background: var(--bg);
   color: var(--ink);
   font-family: var(--body);
   font-size: 17px;
@@ -50,20 +64,52 @@ body {
   overflow-x: hidden;
 }
 
-/* Subtle paper grain — not a gradient, a texture */
-body::before {
+/* Ambient warm light fields fixed behind everything */
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.ambient__blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.55;
+  will-change: transform;
+}
+.ambient__blob--1 {
+  width: 48vw; height: 48vw;
+  top: -14vw; right: -8vw;
+  background: var(--glow-clay);
+  animation: drift1 22s var(--ease) infinite alternate;
+}
+.ambient__blob--2 {
+  width: 40vw; height: 40vw;
+  bottom: -12vw; left: -10vw;
+  background: var(--glow-amber);
+  animation: drift2 28s var(--ease) infinite alternate;
+}
+@keyframes drift1 { to { transform: translate(-6vw, 8vw) scale(1.15); } }
+@keyframes drift2 { to { transform: translate(8vw, -6vw) scale(1.1); } }
+
+/* Fine grain on top */
+body::after {
   content: '';
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 1;
-  opacity: 0.5;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  opacity: 0.4;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
 }
 
 a { color: inherit; text-decoration: none; }
-button { font-family: inherit; cursor: pointer; border: none; background: none; }
-::selection { background: var(--clay-wash); color: var(--ink); }
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+img { display: block; }
+::selection { background: var(--clay); color: var(--bg); }
 
 /* Layout helpers */
 .container {
@@ -76,27 +122,44 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .eyebrow {
   font-family: var(--mono);
   font-size: 0.72rem;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: var(--clay);
+  color: var(--clay-bright);
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.7rem;
 }
 .eyebrow::before {
   content: '';
-  width: 26px;
+  width: 28px;
   height: 1px;
   background: var(--clay);
   display: inline-block;
 }
 
-/* Focus visibility for accessibility */
-:focus-visible {
-  outline: 2px solid var(--clay);
-  outline-offset: 3px;
-  border-radius: 4px;
+.gradient-text {
+  background: var(--grad-warm);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
+
+/* Glare overlay used by the Tilt component */
+.tilt-glare {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 5;
+  mix-blend-mode: soft-light;
+}
+
+::-webkit-scrollbar { width: 11px; }
+::-webkit-scrollbar-track { background: var(--bg-deep); }
+::-webkit-scrollbar-thumb { background: #3a3026; border-radius: 99px; border: 3px solid var(--bg-deep); }
+::-webkit-scrollbar-thumb:hover { background: var(--clay); }
+
+:focus-visible { outline: 2px solid var(--clay-bright); outline-offset: 3px; border-radius: 4px; }
 
 .sr-only {
   position: absolute;

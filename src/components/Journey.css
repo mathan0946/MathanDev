@@ -1,4 +1,4 @@
-.journey { background: var(--paper-sunk); }
+.journey { background: var(--bg-deep); }
 .journey__grid {
   display: grid;
   grid-template-columns: 1.4fr 1fr;
@@ -7,11 +7,7 @@
 }
 
 /* Timeline spine */
-.timeline {
-  list-style: none;
-  position: relative;
-  margin-left: 0.5rem;
-}
+.timeline { list-style: none; position: relative; margin-left: 0.5rem; }
 .timeline::before {
   content: '';
   position: absolute;
@@ -19,7 +15,19 @@
   top: 8px;
   bottom: 8px;
   width: 2px;
-  background: linear-gradient(var(--clay), var(--line));
+  background: var(--line-strong);
+}
+/* bright line that draws itself as you scroll */
+.timeline__progress {
+  position: absolute;
+  left: 7px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: linear-gradient(var(--clay-bright), var(--amber));
+  transform-origin: top;
+  box-shadow: 0 0 12px rgba(224, 122, 75, 0.6);
+  z-index: 1;
 }
 .timeline__item {
   position: relative;
@@ -37,11 +45,11 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: var(--paper);
+  background: var(--bg-raised);
   border: 2px solid var(--ink-faint);
   z-index: 2;
 }
-.is-now .timeline__dot { border-color: var(--clay); background: var(--clay); }
+.is-now .timeline__dot { border-color: var(--clay-bright); background: var(--clay); box-shadow: 0 0 14px var(--clay); }
 .timeline__pulse {
   position: absolute;
   left: -2px;
@@ -50,33 +58,23 @@
   height: 20px;
   border-radius: 50%;
   background: var(--clay);
-  opacity: 0.3;
+  opacity: 0.4;
   animation: ring 2.4s ease-out infinite;
 }
 @keyframes ring {
-  0% { transform: scale(0.6); opacity: 0.45; }
-  100% { transform: scale(2); opacity: 0; }
+  0% { transform: scale(0.6); opacity: 0.5; }
+  100% { transform: scale(2.2); opacity: 0; }
 }
 
-.timeline__top {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  margin-bottom: 0.4rem;
-}
-.timeline__period {
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.1em;
-  color: var(--ink-faint);
-}
+.timeline__top { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.4rem; }
+.timeline__period { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; color: var(--ink-faint); }
 .timeline__badge {
   font-family: var(--mono);
   font-size: 0.6rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--paper-raised);
-  background: var(--clay);
+  color: var(--bg);
+  background: var(--grad-warm);
   padding: 0.15rem 0.5rem;
   border-radius: 999px;
 }
@@ -93,27 +91,23 @@
   margin-top: 0.6rem;
   font-family: var(--mono);
   font-size: 0.78rem;
-  color: var(--clay);
+  color: var(--clay-bright);
   padding: 0.25rem 0.65rem;
-  border: 1px solid var(--clay-wash);
+  border: 1px solid rgba(224, 122, 75, 0.3);
   border-radius: 8px;
-  background: var(--paper-raised);
+  background: var(--clay-wash);
 }
 
 /* Achievement notes */
-.journey__aside {
-  display: flex;
-  flex-direction: column;
-  gap: 1.6rem;
-  padding-top: 5.5rem;
-}
+.journey__aside { display: flex; flex-direction: column; gap: 1.6rem; padding-top: 5.5rem; }
 .note {
   position: relative;
-  background: var(--paper-raised);
+  background: var(--bg-glass);
+  backdrop-filter: blur(10px);
   border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 1.6rem 1.5rem 1.5rem;
-  box-shadow: 0 20px 40px -30px rgba(33, 28, 22, 0.5);
+  border-radius: 16px;
+  padding: 1.7rem 1.5rem 1.5rem;
+  box-shadow: 0 24px 50px -36px rgba(0, 0, 0, 0.8);
 }
 .note__pin {
   position: absolute;
@@ -122,15 +116,15 @@
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--clay);
-  box-shadow: 0 2px 6px rgba(33, 28, 22, 0.3);
+  background: var(--grad-warm);
+  box-shadow: 0 0 14px rgba(224, 122, 75, 0.6);
 }
 .note__headline {
   font-family: var(--display);
   font-weight: 600;
   font-style: italic;
   font-size: 1.5rem;
-  color: var(--clay);
+  color: var(--clay-bright);
   margin-bottom: 0.5rem;
 }
 .note__body { color: var(--ink-soft); font-size: 0.95rem; }

@@ -2,39 +2,31 @@ main { position: relative; z-index: 2; }
 
 section { position: relative; }
 
-/* Generous section rhythm — whitespace is the design */
-.section-pad {
-  padding-block: clamp(5rem, 12vw, 11rem);
-}
+.section-pad { padding-block: clamp(5.5rem, 13vw, 12rem); }
 
-/* Shared section header treatment */
 .section-head {
   display: flex;
   flex-direction: column;
-  gap: 1.1rem;
+  gap: 1.2rem;
   margin-bottom: clamp(2.5rem, 6vw, 5rem);
 }
 .section-head h2 {
   font-family: var(--display);
   font-weight: 500;
-  font-size: clamp(2.1rem, 5.5vw, 3.8rem);
+  font-size: clamp(2.2rem, 5.5vw, 4rem);
   line-height: 1.04;
-  letter-spacing: -0.02em;
-  max-width: 16ch;
+  letter-spacing: -0.025em;
+  max-width: 18ch;
 }
-.section-head h2 em {
-  font-style: italic;
-  color: var(--clay);
-}
+.section-head h2 em { font-style: italic; color: var(--clay-bright); }
 .section-head .lede {
   color: var(--ink-soft);
-  max-width: 46ch;
-  font-size: 1.05rem;
+  max-width: 48ch;
+  font-size: 1.08rem;
 }
 
-.divider {
-  height: 1px;
-  background: var(--line);
-  border: none;
-  margin: 0;
-}
+.divider { height: 1px; background: var(--line); border: none; margin: 0; }
+
+/* Word-by-word animated heading */
+.ah__word { display: inline-block; overflow: hidden; vertical-align: top; }
+.ah__word-inner { display: inline-block; will-change: transform, filter; }

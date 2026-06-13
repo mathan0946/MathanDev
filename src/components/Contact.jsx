@@ -64,13 +64,6 @@ export default function Contact() {
           ))}
         </motion.ul>
       </div>
-
-      <div className="container contact__foot">
-        <span>© 2026 {profile.name}</span>
-        <span className="contact__foot-built">
-          Designed &amp; built from scratch — React, Framer Motion, far too much coffee.
-        </span>
-      </div>
     </section>
   )
 }

@@ -52,6 +52,7 @@ export const projects = [
       'Interactive lesson flow that adapts to the modality each learner prefers.',
     ],
     tone: 'voice',
+    major: true,
   },
   {
     id: 'research',
@@ -71,6 +72,7 @@ export const projects = [
       'Built for transparency: every accept/reject comes with a reason.',
     ],
     tone: 'paper',
+    major: true,
   },
   {
     id: 'derma',
@@ -128,6 +130,7 @@ export const projects = [
       'Companion app with camera diagnosis and weather-aware treatment advice.',
     ],
     tone: 'field',
+    major: true,
   },
   {
     id: 'stock',

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { skillClusters } from '../data/content'
+import AnimatedHeading from './AnimatedHeading'
 import './Skills.css'
 
 export default function Skills() {
@@ -11,9 +12,7 @@ export default function Skills() {
       <div className="container">
         <header className="section-head">
           <span className="eyebrow">How I think in stacks</span>
-          <h2>
-            Skills, grouped by the <em>job they do</em>.
-          </h2>
+          <AnimatedHeading text="Skills, grouped by the job they do." emWords={[4, 5, 6]} />
           <p className="lede">
             Not an alphabet soup of logos — the three layers I reach for when an
             idea needs to become a working system.

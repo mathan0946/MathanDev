@@ -1,0 +1,43 @@
+/* Hide the native cursor only when our custom one is active (fine pointers) */
+body.has-custom-cursor,
+body.has-custom-cursor * { cursor: none !important; }
+
+.cursor-ring,
+.cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  pointer-events: none;
+  border-radius: 50%;
+  mix-blend-mode: difference;
+}
+
+.cursor-ring {
+  width: 38px;
+  height: 38px;
+  margin: -19px 0 0 -19px;
+  border: 1.5px solid rgba(243, 236, 225, 0.9);
+  transition: width 0.25s var(--ease), height 0.25s var(--ease),
+    margin 0.25s var(--ease), background 0.25s, border-color 0.25s;
+}
+.cursor-ring.is-hover {
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  background: rgba(243, 236, 225, 0.12);
+  border-color: transparent;
+}
+.cursor-ring.is-down { width: 30px; height: 30px; margin: -15px 0 0 -15px; }
+
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  background: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-ring, .cursor-dot { display: none; }
+  body.has-custom-cursor, body.has-custom-cursor * { cursor: auto !important; }
+}

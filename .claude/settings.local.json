@@ -11,7 +11,10 @@
       "Bash(curl -s http://localhost:5173/favicon.svg -o /dev/null -w \"favicon: %{http_code}\\\\n\")",
       "Bash(curl -s http://localhost:5173/portrait.png -o /dev/null -w \"portrait: %{http_code}\\\\n\")",
       "Bash(curl -s http://localhost:5173/src/components/Archive.jsx -o /dev/null -w \"Archive.jsx: %{http_code}\\\\n\")",
-      "Bash(curl -s http://localhost:5173/src/components/Magnetic.jsx -o /dev/null -w \"Magnetic.jsx: %{http_code}\\\\n\")"
+      "Bash(curl -s http://localhost:5173/src/components/Magnetic.jsx -o /dev/null -w \"Magnetic.jsx: %{http_code}\\\\n\")",
+      "Bash(curl -s \"http://localhost:5173/src/components/Footer.css\" -o /dev/null -w \"Footer.css -> %{http_code}\\\\n\")",
+      "Bash(curl -s -o /dev/null -w \"built / -> %{http_code}\\\\n\" \"http://localhost:4173/\")",
+      "Bash(curl -s -o /dev/null -w \"built /assets css -> %{http_code}\\\\n\" \"http://localhost:4173/$\\(grep -oE 'assets/index-[^\\\\\"]+\\\\.css' dist/index.html)"
     ]
   }
 }

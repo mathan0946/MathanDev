@@ -1,10 +1,51 @@
 .hero {
+  position: relative;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   padding-top: 110px;
   padding-bottom: 3rem;
+  --mx: 70%;
+  --my: 30%;
+  overflow: hidden;
+}
+/* cursor-following spotlight */
+.hero__spotlight {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    420px circle at var(--mx) var(--my),
+    rgba(224, 122, 75, 0.16),
+    transparent 65%
+  );
+  transition: background 0.18s ease-out;
+}
+.hero__grid, .hero__scroll { position: relative; z-index: 1; }
+
+/* "available" status badge */
+.hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+  padding: 0.5rem 0.95rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--bg-glass);
+  backdrop-filter: blur(8px);
+  margin-bottom: 1.8rem;
+}
+.hero__badge-pulse {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #7fd18c;
+  box-shadow: 0 0 0 0 rgba(127, 209, 140, 0.6);
+  animation: live 2s ease-out infinite;
 }
 
 .hero__grid {
@@ -35,8 +76,8 @@
   height: 100%;
   object-fit: cover;
   border-radius: 22px;
-  border: 1px solid var(--line);
-  box-shadow: 0 40px 70px -40px rgba(33, 28, 22, 0.55);
+  border: 1px solid var(--line-strong);
+  box-shadow: 0 50px 90px -45px rgba(0, 0, 0, 0.85);
   position: relative;
   z-index: 2;
 }
@@ -44,18 +85,39 @@
 .hero__portrait-ring {
   position: absolute;
   inset: 0;
-  transform: translate(14px, 14px);
+  transform: translate(15px, 15px);
   border-radius: 22px;
   border: 1.5px solid var(--clay);
   background: var(--clay-wash);
+  box-shadow: 0 0 50px rgba(224, 122, 75, 0.3);
   z-index: 1;
 }
+/* rotating conic gradient frame */
+.hero__portrait-frame {
+  position: absolute;
+  inset: -3px;
+  border-radius: 25px;
+  z-index: 1;
+  background: conic-gradient(
+    from 0deg,
+    var(--clay) 0deg,
+    var(--amber) 90deg,
+    transparent 180deg,
+    var(--clay-bright) 300deg,
+    var(--clay) 360deg
+  );
+  filter: blur(7px);
+  opacity: 0.55;
+  animation: spin 8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
 .hero__portrait-tag {
   position: absolute;
   left: 50%;
   bottom: -14px;
-  transform: translateX(-50%);
-  z-index: 3;
+  transform: translateX(-50%) translateZ(40px);
+  z-index: 4;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -64,10 +126,12 @@
   font-size: 0.68rem;
   letter-spacing: 0.06em;
   padding: 0.45rem 0.85rem;
-  background: var(--ink);
-  color: var(--paper);
+  background: var(--bg-glass-strong);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--line-strong);
+  color: var(--ink);
   border-radius: 999px;
-  box-shadow: 0 12px 24px -14px rgba(33, 28, 22, 0.6);
+  box-shadow: 0 14px 30px -16px rgba(0, 0, 0, 0.7);
 }
 .hero__portrait-dot {
   width: 7px; height: 7px; border-radius: 50%;
@@ -97,7 +161,7 @@
 }
 .hero__line { display: block; overflow: hidden; }
 .hero__line-inner { display: block; }
-.hero__headline em { font-style: italic; color: var(--clay); }
+.hero__headline em { font-style: italic; color: var(--clay-bright); }
 
 .hero__intro {
   margin-top: 2rem;
@@ -125,15 +189,15 @@
   transition: background 0.3s, color 0.3s, box-shadow 0.3s;
 }
 .btn--primary {
-  background: var(--ink);
-  color: var(--paper-raised);
-  box-shadow: 0 10px 30px -12px rgba(33, 28, 22, 0.5);
+  background: var(--grad-warm);
+  color: var(--bg);
+  box-shadow: 0 14px 40px -14px rgba(224, 122, 75, 0.7);
 }
-.btn--primary:hover { background: var(--clay); }
+.btn--primary:hover { filter: brightness(1.08); }
 .btn__arrow { transition: transform 0.3s var(--ease); }
 .btn--primary:hover .btn__arrow { transform: translateY(3px); }
-.btn--ghost { border: 1px solid var(--line); color: var(--ink); }
-.btn--ghost:hover { background: var(--paper-sunk); }
+.btn--ghost { border: 1px solid var(--line-strong); color: var(--ink); }
+.btn--ghost:hover { background: rgba(243, 236, 225, 0.06); border-color: var(--clay); }
 
 /* Stat row */
 .hero__stats {
@@ -149,7 +213,7 @@
   font-style: italic;
   font-weight: 500;
   font-size: clamp(1.7rem, 3.5vw, 2.4rem);
-  color: var(--clay);
+  color: var(--clay-bright);
   line-height: 1;
 }
 .hero__stat dd {
