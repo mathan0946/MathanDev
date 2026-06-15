@@ -1,0 +1,275 @@
+/* ------------------------------------------------------------------
+   BootSequence — full-screen B/W terminal "boot" intro.
+   Mounts above everything (z 9999), locks scroll, glitches out
+   and exposes the PhoneIntro beneath when complete.
+-------------------------------------------------------------------*/
+
+.boot {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #000;
+  color: #fff;
+  overflow: hidden;
+  font-family: var(--mono, ui-monospace, 'JetBrains Mono', monospace);
+  isolation: isolate;
+}
+
+/* Hide site chrome (nav, footer, scroll progress) while booting. */
+body.is-booting .nav,
+body.is-booting .nav-mobile,
+body.is-booting .footer,
+body.is-booting .scroll-progress { display: none !important; }
+
+/* ---------------- Layered FX -------------------------------------- */
+.boot__grid {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: radial-gradient(ellipse at center, #000 25%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 25%, transparent 78%);
+}
+.boot__noise {
+  position: absolute; inset: 0; pointer-events: none;
+  opacity: 0.07;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.7) 0.5px, transparent 0.5px);
+  background-size: 3px 3px;
+  mix-blend-mode: overlay;
+  animation: bootNoise 0.15s steps(1) infinite;
+}
+@keyframes bootNoise {
+  0%   { transform: translate(0, 0); }
+  20%  { transform: translate(-1px, 1px); }
+  40%  { transform: translate(1px, -1px); }
+  60%  { transform: translate(-1px, -1px); }
+  80%  { transform: translate(1px, 0); }
+  100% { transform: translate(0, 1px); }
+}
+.boot__scan {
+  position: absolute; left: -10%; right: -10%;
+  top: -2%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85), transparent);
+  filter: blur(0.5px);
+  animation: bootScan 1.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@keyframes bootScan {
+  0%   { top: -2%; opacity: 0; }
+  15%, 85% { opacity: 0.9; }
+  100% { top: 102%; opacity: 0; }
+}
+.boot__vignette {
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.6) 95%);
+}
+
+/* ---------------- HUD --------------------------------------------- */
+.boot__hud {
+  position: absolute;
+  padding: 1.6rem 1.8rem;
+  font-size: 0.66rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  z-index: 3;
+}
+.boot__hud--tl { top: 0; left: 0; }
+.boot__hud--tr { top: 0; right: 0; text-align: right; line-height: 1.55; }
+.boot__hud--bl { bottom: 0; left: 0; }
+.boot__hud--br { bottom: 0; right: 0; text-align: right; }
+.boot__hud-dim { color: rgba(255, 255, 255, 0.4); }
+.boot__hud-strong {
+  color: #fff;
+  padding: 0.15rem 0.45rem;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 3px;
+  margin-left: 0.4rem;
+  animation: bootBlink 1.1s steps(2) infinite;
+}
+@keyframes bootBlink {
+  0%, 60% { opacity: 1; }
+  61%, 100% { opacity: 0.3; }
+}
+.boot__dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+  animation: bootBlink 1.4s ease-out infinite;
+}
+.boot__signal { display: inline-flex; align-items: flex-end; gap: 2px; }
+.boot__signal i { width: 2px; background: #fff; border-radius: 1px; }
+.boot__signal i:nth-child(1) { height: 4px; }
+.boot__signal i:nth-child(2) { height: 7px; }
+.boot__signal i:nth-child(3) { height: 10px; }
+.boot__signal i:nth-child(4) { height: 13px; }
+
+/* ---------------- Hex stream (right edge) ------------------------ */
+.boot__hex {
+  position: absolute;
+  right: 1.8rem;
+  top: 0;
+  height: 200%;
+  width: 6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.25);
+  text-align: right;
+  pointer-events: none;
+  z-index: 1;
+  /* fade the top/bottom edges */
+  mask-image: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent);
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent);
+}
+.boot__hex-strong { color: rgba(255, 255, 255, 0.85); }
+
+/* ---------------- The big counter --------------------------------- */
+.boot__center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 2;
+}
+.boot__count {
+  position: relative;
+  font-family: var(--display, 'Times New Roman', serif);
+  font-style: italic;
+  font-weight: 200;
+  font-size: clamp(6rem, 14vw, 14rem);
+  line-height: 0.82;
+  letter-spacing: -0.05em;
+  user-select: none;
+  white-space: nowrap;
+}
+.boot__count-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.9);
+  display: inline-block;
+}
+.boot__count-fill {
+  position: absolute;
+  inset: 0;
+  color: #fff;
+  -webkit-text-stroke: 0;
+  text-shadow: 0 0 40px rgba(255, 255, 255, 0.35);
+  pointer-events: none;
+  transition: clip-path 0.08s linear;
+}
+.boot__count-suffix {
+  position: absolute;
+  top: 14%;
+  right: -0.45em;
+  font-family: var(--mono, monospace);
+  font-style: normal;
+  font-size: 0.14em;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ---------------- Diagnostic lines (bottom-left) ------------------ */
+.boot__lines {
+  position: absolute;
+  left: 1.8rem;
+  bottom: 5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.7);
+  z-index: 3;
+  max-width: 48ch;
+}
+.boot__line { white-space: pre; }
+.boot__caret {
+  display: inline-block;
+  width: 0.55em;
+  height: 1em;
+  vertical-align: -0.15em;
+  margin-left: 0.15em;
+  background: #fff;
+  animation: bootCaret 0.9s steps(1) infinite;
+}
+@keyframes bootCaret {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* ---------------- Bottom progress rail ---------------------------- */
+.boot__bar {
+  position: absolute;
+  left: 1.8rem; right: 1.8rem;
+  bottom: 3.2rem;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.15);
+  z-index: 2;
+}
+.boot__bar-fill {
+  height: 100%;
+  background: #fff;
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.55);
+  transition: width 0.08s linear;
+}
+.boot__bar-num {
+  position: absolute;
+  right: 0; top: -1.4rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.24em;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ---------------- Glitch + flash --------------------------------- */
+.boot--glitch .boot__count {
+  animation: bootGlitchShake 0.55s steps(6);
+}
+.boot--glitch .boot__grid { animation-name: bootGridFlick; animation-duration: 0.18s; animation-iteration-count: 3; }
+@keyframes bootGlitchShake {
+  0%   { transform: translate(0, 0); }
+  15%  { transform: translate(-6px, 2px) skewX(-3deg); }
+  30%  { transform: translate(5px, -3px) skewX(2deg); }
+  45%  { transform: translate(-4px, 1px); }
+  60%  { transform: translate(3px, 2px) skewX(-1deg); }
+  75%  { transform: translate(-2px, -1px); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes bootGridFlick {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.2; }
+}
+.boot__flash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  pointer-events: none;
+  opacity: 0;
+  animation: bootFlash 0.45s ease-out forwards;
+  animation-delay: 0.25s;
+  z-index: 4;
+  mix-blend-mode: screen;
+}
+@keyframes bootFlash {
+  0%   { opacity: 0; }
+  20%  { opacity: 0.9; }
+  100% { opacity: 0; }
+}
+
+/* ---------------- Reduced motion --------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .boot__noise, .boot__scan, .boot__hex, .boot__dot, .boot__hud-strong { animation: none; }
+}
+
+/* ---------------- Mobile ---------------------------------------- */
+@media (max-width: 720px) {
+  .boot__hud { padding: 1rem 1.1rem; font-size: 0.58rem; letter-spacing: 0.18em; }
+  .boot__hex { display: none; }
+  .boot__lines { left: 1.1rem; bottom: 4.2rem; font-size: 0.7rem; }
+  .boot__bar { left: 1.1rem; right: 1.1rem; bottom: 2.4rem; }
+  .boot__count { font-size: clamp(4.5rem, 22vw, 8rem); }
+}

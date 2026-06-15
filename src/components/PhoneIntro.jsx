@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
+import Mathan3D from './Mathan3D'
 import './PhoneIntro.css'
 
 /**
@@ -120,6 +121,16 @@ export default function PhoneIntro() {
           </span>
         </motion.aside>
 
+        {/* 3D model floating beside the phone — fades + slides out as the
+            phone takes over the frame. */}
+        <motion.div
+          className="phone-intro__model"
+          style={{ opacity: sideOpacity, x: sideXRight, scale: sideScale }}
+          aria-hidden
+        >
+          <Mathan3D />
+        </motion.div>
+
         <motion.div
           className="phone-intro__stage"
           style={{ rotate, scale, y: floatY }}
@@ -188,6 +199,12 @@ export default function PhoneIntro() {
                 className="phone-intro__site"
                 style={{ opacity: siteOpacity }}
               >
+                <img
+                  src="/hey.png"
+                  alt=""
+                  className="phone-intro__site-hi"
+                  aria-hidden
+                />
                 <div className="phone-intro__site-greeting">
                   <span className="phone-intro__site-kicker">— Hey there,</span>
                   <h2 className="phone-intro__site-name">

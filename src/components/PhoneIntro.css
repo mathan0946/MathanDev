@@ -447,14 +447,24 @@
   align-items: center;
   justify-content: center;
   padding: 0 6%;
+  flex-direction: row;
+  gap: 4%;
+}
+.phone-intro__site-hi {
+  flex: 0 0 auto;
+  width: 32%;
+  max-width: 200px;
+  height: auto;
+  object-fit: contain;
+  filter: grayscale(1) brightness(1.05) contrast(1.05);
 }
 .phone-intro__site-greeting {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.9em;
-  text-align: center;
-  width: 100%;
+  text-align: left;
+  flex: 1 1 auto;
 }
 .phone-intro__site-kicker {
   font-family: var(--mono, ui-monospace, monospace);
@@ -478,22 +488,29 @@
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  position: relative;
-  padding-right: 0.08em;
 }
-.phone-intro__site-name em::after {
-  content: '';
+
+/* ---------------- 3D model — right of the phone ------------------ */
+.phone-intro__model {
   position: absolute;
-  right: -0.05em;
-  top: 0.08em;
-  width: 0.06em;
-  height: 0.95em;
-  background: #fff;
-  animation: greetingCaret 1.1s steps(1) infinite;
+  right: clamp(2vw, 6vw, 10vw);
+  top: 50%;
+  transform-origin: center center;
+  width: clamp(320px, 32vw, 520px);
+  height: clamp(380px, 60vh, 640px);
+  margin-top: calc(-1 * clamp(190px, 30vh, 320px));
+  z-index: 4;
+  pointer-events: auto;
+  will-change: transform, opacity;
 }
-@keyframes greetingCaret {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
+.phone-intro__model canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+@media (max-width: 1024px) {
+  .phone-intro__model { display: none; }
 }
 
 /* ---------------- Scroll hint -------------------------------------- */

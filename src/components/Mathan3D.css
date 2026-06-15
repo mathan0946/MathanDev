@@ -1,0 +1,197 @@
+/* ------------------------------------------------------------------
+   Mathan3D — hologram styling around the 3D canvas.
+   B/W theme, mouse-rotatable model, pulsing base & scanlines.
+-------------------------------------------------------------------*/
+
+.holo {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+}
+
+/* The 3D canvas — fills the whole component, sits ABOVE the base */
+.holo__canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+.holo__canvas canvas {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  cursor: grab;
+}
+.holo__canvas canvas:active { cursor: grabbing; }
+
+/* ---------------- Hologram base / pedestal ----------------------- */
+/* Anchored at the bottom of the component, sits BEHIND the canvas
+   so the beam shows through transparent regions of the WebGL output
+   but is occluded by the model itself. */
+.holo__base {
+  position: absolute;
+  left: 0; right: 0;
+  bottom: 0;
+  height: 16%;
+  z-index: 1;
+  display: grid;
+  place-items: end center;
+  pointer-events: none;
+}
+
+.holo__ring {
+  position: absolute;
+  bottom: 8%;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  transform: rotateX(72deg);
+  box-shadow: 0 0 24px rgba(255, 255, 255, 0.25);
+  width: 70%; aspect-ratio: 1;
+}
+.holo__ring--1 { animation: holoRing 3.6s ease-out infinite; }
+.holo__ring--2 { animation: holoRing 3.6s ease-out infinite; animation-delay: 1.2s; }
+.holo__ring--3 { animation: holoRing 3.6s ease-out infinite; animation-delay: 2.4s; }
+@keyframes holoRing {
+  0%   { opacity: 0;   transform: rotateX(72deg) scale(0.5); }
+  20%  { opacity: 0.9; }
+  100% { opacity: 0;   transform: rotateX(72deg) scale(1.6); }
+}
+
+/* Solid disc that sits flat on the "ground" at the base */
+.holo__disc {
+  position: absolute;
+  bottom: 12%;
+  width: 40%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.15) 55%, transparent 75%);
+  transform: rotateX(72deg);
+  filter: blur(2px);
+  animation: holoDisc 3s ease-in-out infinite;
+}
+@keyframes holoDisc {
+  0%, 100% { opacity: 0.5; transform: rotateX(72deg) scale(1); }
+  50%      { opacity: 0.95; transform: rotateX(72deg) scale(1.08); }
+}
+
+/* Vertical light cone rising from the disc — narrow at the base,
+   spreading wider as it climbs into the model. */
+.holo__beam {
+  position: absolute;
+  bottom: 12%;
+  width: 60%;
+  height: 380%;
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.06) 60%, transparent 100%);
+  clip-path: polygon(0% 0%, 100% 0%, 65% 100%, 35% 100%);
+  filter: blur(3px);
+  mix-blend-mode: screen;
+  animation: holoBeam 4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes holoBeam {
+  0%, 100% { opacity: 0.45; }
+  50%      { opacity: 0.85; }
+}
+
+/* Rising particles inside the beam */
+.holo__particles {
+  position: absolute;
+  bottom: 12%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50%;
+  height: 380%;
+  pointer-events: none;
+}
+.holo__particles i {
+  position: absolute;
+  bottom: 0;
+  width: 2px; height: 2px;
+  background: #fff;
+  border-radius: 50%;
+  opacity: 0;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+  animation-name: holoParticle;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-out;
+}
+@keyframes holoParticle {
+  0%   { transform: translateY(0) scale(0.6); opacity: 0; }
+  15%  { opacity: 0.95; }
+  100% { transform: translateY(-340%) scale(1); opacity: 0; }
+}
+
+/* Horizontal scanlines that slowly drift over the canvas area */
+.holo__scanlines {
+  position: absolute;
+  inset: 0 0 16% 0;
+  z-index: 3;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.06) 0px,
+    rgba(255, 255, 255, 0.06) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  mix-blend-mode: overlay;
+  animation: holoScroll 4s linear infinite;
+  mask-image: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent);
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent);
+}
+@keyframes holoScroll {
+  from { background-position: 0 0; }
+  to   { background-position: 0 32px; }
+}
+
+/* Random brightness flicker on the column */
+.holo__flicker {
+  position: absolute;
+  inset: 0 0 16% 0;
+  z-index: 3;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.04);
+  mix-blend-mode: screen;
+  animation: holoFlicker 0.18s steps(2) infinite;
+}
+@keyframes holoFlicker {
+  0%   { opacity: 0.3; }
+  50%  { opacity: 0.7; }
+  100% { opacity: 0.35; }
+}
+
+/* Tiny HUD label */
+.holo__hud {
+  position: absolute;
+  bottom: -2.4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 0.55rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.holo__hud-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.85);
+  animation: holoBlink 1.4s ease-in-out infinite;
+}
+@keyframes holoBlink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .holo__ring, .holo__disc, .holo__beam, .holo__particles i,
+  .holo__scanlines, .holo__flicker, .holo__hud-dot { animation: none; }
+}
