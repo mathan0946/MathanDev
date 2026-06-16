@@ -1,21 +1,27 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
-import Mathan3D from './Mathan3D'
 import './PhoneIntro.css'
 
+const FRAME_COUNT = 39
+const FRAME_PATH = (i) => `/frames/hi/${String(i).padStart(2, '0')}.png`
+
 /**
- * Scroll-driven cinematic intro.
+ * Scroll-driven cinematic intro — single pinned section that does:
  *
- * Phase 1 (0–30%)   portrait phone floats; aurora wallpaper + lock screen.
- * Phase 2 (30–70%)  phone pivots to landscape, scales up, bezel dissolves,
- *                   lock screen fades out, website fades in.
- * Phase 3 (70–100%) phone is gone — the website fills the viewport.
+ *  Phase 0 (0–28%)    "hi" frame-by-frame animation plays center stage.
+ *  Phase 1 (28–42%)   hi shrinks + slides right; phone zooms in centered.
+ *  Phase 2 (42–72%)   phone rotates to landscape, scales up, bezel dissolves.
+ *  Phase 3 (72–100%)  phone fills the viewport; site is revealed.
  *
- * The section is 500vh tall and its inner stage is sticky so scroll progress
- * drives the morph. Swap the contents of #website-content for your real site.
+ * The hi canvas keeps rendering frame 39 after playback so the keepsake
+ * sits beside the phone until the phone takes over the frame.
  */
 export default function PhoneIntro() {
   const sectionRef = useRef(null)
+  const canvasRef = useRef(null)
+  const framesRef = useRef([])
+  const [framesReady, setFramesReady] = useState(false)
+
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ['start start', 'end end'],
@@ -24,42 +30,53 @@ export default function PhoneIntro() {
   // Smooth out Lenis' fractional updates for buttery transforms.
   const p = useSpring(scrollYProgress, { stiffness: 140, damping: 28, mass: 0.4 })
 
-  // ---- phase 1: floating portrait
-  const floatY = useTransform(p, [0, 0.3], [0, -10])
+  // ----- Hi frame playback (phase 0) -----
+  const frameProgress = useTransform(p, [0, 0.28], [0, 1])
+  // Caption sits to the LEFT of the image; fades out by sliding further left.
+  const hiCaptionOpacity = useTransform(p, [0, 0.22, 0.3], [1, 1, 0])
+  const hiCaptionX = useTransform(p, [0, 0.3], ['0px', '-140px'])
+
+  // Hi canvas — visible from the start, shrinks + slides right during handoff,
+  // then keeps moving right and fades out as the phone grows.
+  const hiCanvasScale = useTransform(p, [0.28, 0.42], [1, 0.95])
+  const hiCanvasX = useTransform(p, [0.28, 0.42, 0.7], ['0vw', '28vw', '55vw'])
+  const hiCanvasY = useTransform(p, [0.28, 0.42], ['0vh', '4vh'])
+  const hiCanvasOpacity = useTransform(p, [0, 0.5, 0.7], [1, 1, 0])
+
+  // ----- Phone phase (shifted to start at 0.3 — hi takes 0→0.3) -----
+  const floatY = useTransform(p, [0.3, 0.51], [0, -10])
   const hintOpacity = useTransform(p, [0, 0.08], [1, 0])
 
-  // ---- phase 2: rotate + scale + bezel dissolve
-  // Rotate to landscape, then keep scaling so the screen fills the viewport.
-  const rotate = useTransform(p, [0.3, 0.7], [0, -90])
+  // Phone zooms in from tiny to its resting size during 30–43%.
+  const rotate = useTransform(p, [0.51, 0.79], [0, -90])
   const scale = useTransform(
     p,
-    [0, 0.3, 0.7, 1],
-    [1, 1.04, 3.4, 3.4]
+    [0.3, 0.426, 0.51, 0.79, 1],
+    [0.18, 1, 1.04, 3.4, 3.4]
   )
+  const stageOpacity = useTransform(p, [0.3, 0.335, 0.426], [0, 0.6, 1])
 
   // Bezel: thickness, radius and shadow all dissolve through phase 2.
-  const bezelOpacity = useTransform(p, [0.4, 0.7], [1, 0])
-  const bezelRadius = useTransform(p, [0.4, 0.72], [44, 0])
-  const bezelInset = useTransform(p, [0.4, 0.72], [10, 0])
-  const shadowOpacity = useTransform(p, [0.35, 0.7], [1, 0])
-  const notchOpacity = useTransform(p, [0.35, 0.55], [1, 0])
+  const bezelOpacity = useTransform(p, [0.58, 0.79], [1, 0])
+  const bezelRadius = useTransform(p, [0.58, 0.804], [44, 0])
+  const bezelInset = useTransform(p, [0.58, 0.804], [10, 0])
+  const shadowOpacity = useTransform(p, [0.545, 0.79], [1, 0])
+  const notchOpacity = useTransform(p, [0.545, 0.685], [1, 0])
 
-  // ---- screen content crossfade
-  // Site fade is delayed until the phone is nearly in landscape, so the
-  // pre-rotated website doesn't appear at a weird angle during the spin.
-  const lockOpacity = useTransform(p, [0.3, 0.55], [1, 0])
-  const siteOpacity = useTransform(p, [0.62, 0.78], [0, 1])
+  // ----- screen content crossfade -----
+  const lockOpacity = useTransform(p, [0.51, 0.685], [1, 0])
+  const siteOpacity = useTransform(p, [0.734, 0.846], [0, 1])
 
-  // ---- aurora background fades as phone takes over
-  const bgOpacity = useTransform(p, [0.55, 0.85], [1, 0])
+  // ----- aurora background fades as phone takes over -----
+  const bgOpacity = useTransform(p, [0.685, 0.895], [1, 0])
 
-  // ---- side meta-text — fades + slides out as the phone takes over
-  const sideOpacity = useTransform(p, [0, 0.28], [1, 0])
-  const sideScale = useTransform(p, [0, 0.3], [1, 0.85])
-  const sideXLeft = useTransform(p, [0, 0.3], [0, -120])
-  const sideXRight = useTransform(p, [0, 0.3], [0, 120])
+  // ----- side meta-text — appears once phone settles, fades as it grows -----
+  const sideOpacity = useTransform(p, [0.3, 0.4, 0.5], [0, 1, 0])
+  const sideScale = useTransform(p, [0.3, 0.51], [1, 0.85])
+  const sideXLeft = useTransform(p, [0.3, 0.51], [0, -120])
+  const sideXRight = useTransform(p, [0.3, 0.51], [0, 120])
 
-  // Live clock for the lock screen.
+  // ----- Live clock for the lock screen -----
   const [now, setNow] = useState(() => new Date())
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 1000 * 15)
@@ -67,6 +84,91 @@ export default function PhoneIntro() {
   }, [])
   const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
   const date = now.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' })
+
+  // ----- Preload hi frames -----
+  useEffect(() => {
+    let cancelled = false
+    let loaded = 0
+    const arr = []
+    const drawFirstFrameNow = () => {
+      const canvas = canvasRef.current
+      const img = arr[0]
+      if (!canvas || !img || !img.complete) return
+      const ctx = canvas.getContext('2d')
+      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      const rect = canvas.getBoundingClientRect()
+      canvas.width = Math.round(rect.width * dpr)
+      canvas.height = Math.round(rect.height * dpr)
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      const cw = rect.width, ch = rect.height
+      const iw = img.naturalWidth, ih = img.naturalHeight
+      const scale = Math.min(cw / iw, ch / ih)
+      const dw = iw * scale, dh = ih * scale
+      ctx.drawImage(img, (cw - dw) / 2, (ch - dh) / 2, dw, dh)
+    }
+    for (let i = 1; i <= FRAME_COUNT; i++) {
+      const img = new Image()
+      img.src = FRAME_PATH(i)
+      img.onload = () => {
+        loaded++
+        if (i === 1 && !cancelled) drawFirstFrameNow()
+        if (loaded === FRAME_COUNT && !cancelled) setFramesReady(true)
+      }
+      img.onerror = () => {
+        loaded++
+        if (loaded === FRAME_COUNT && !cancelled) setFramesReady(true)
+      }
+      arr.push(img)
+    }
+    framesRef.current = arr
+    return () => { cancelled = true }
+  }, [])
+
+  // ----- Render frame onto the canvas -----
+  useEffect(() => {
+    if (!framesReady) return
+    const canvas = canvasRef.current
+    const ctx = canvas.getContext('2d')
+    const first = framesRef.current[0]
+    if (!first) return
+    const currentFrameRef = { current: 0 }
+
+    const draw = (idx) => {
+      const img = framesRef.current[idx]
+      if (!img || !img.complete) return
+      const rect = canvas.getBoundingClientRect()
+      ctx.clearRect(0, 0, rect.width, rect.height)
+      const cw = rect.width, ch = rect.height
+      const iw = img.naturalWidth, ih = img.naturalHeight
+      const scale = Math.min(cw / iw, ch / ih)
+      const dw = iw * scale, dh = ih * scale
+      const dx = (cw - dw) / 2, dy = (ch - dh) / 2
+      ctx.drawImage(img, dx, dy, dw, dh)
+    }
+
+    const resize = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      const rect = canvas.getBoundingClientRect()
+      canvas.width = Math.round(rect.width * dpr)
+      canvas.height = Math.round(rect.height * dpr)
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      draw(currentFrameRef.current)
+    }
+
+    resize()
+    const unsub = frameProgress.on('change', (v) => {
+      const idx = Math.min(FRAME_COUNT - 1, Math.max(0, Math.floor(v * (FRAME_COUNT - 1))))
+      if (idx !== currentFrameRef.current) {
+        currentFrameRef.current = idx
+        draw(idx)
+      }
+    })
+    window.addEventListener('resize', resize)
+    return () => {
+      unsub()
+      window.removeEventListener('resize', resize)
+    }
+  }, [framesReady, frameProgress])
 
   return (
     <section className="phone-intro" ref={sectionRef} aria-label="Intro animation">
@@ -88,6 +190,30 @@ export default function PhoneIntro() {
             ))}
           </span>
           <span className="phone-intro__grain" />
+        </motion.div>
+
+        {/* Hi caption — shown only during hi playback */}
+        <motion.div
+          className="phone-intro__hi-caption"
+          style={{ opacity: hiCaptionOpacity, x: hiCaptionX }}
+          aria-hidden
+        >
+          <span className="phone-intro__hi-caption-kicker">— say</span>
+          <h2 className="phone-intro__hi-caption-title">hi<em>.</em></h2>
+          <span className="phone-intro__hi-caption-sub">scroll to play</span>
+        </motion.div>
+
+        {/* Hi frame canvas — plays, then shrinks + slides right of the phone */}
+        <motion.div
+          className="phone-intro__hi-stage"
+          style={{
+            scale: hiCanvasScale,
+            x: hiCanvasX,
+            y: hiCanvasY,
+            opacity: hiCanvasOpacity,
+          }}
+        >
+          <canvas ref={canvasRef} className="phone-intro__hi-canvas" aria-hidden />
         </motion.div>
 
         <motion.aside
@@ -128,19 +254,9 @@ export default function PhoneIntro() {
           </span>
         </motion.aside>
 
-        {/* 3D model floating beside the phone — fades + slides out as the
-            phone takes over the frame. */}
-        <motion.div
-          className="phone-intro__model"
-          style={{ opacity: sideOpacity, x: sideXRight, scale: sideScale }}
-          aria-hidden
-        >
-          <Mathan3D />
-        </motion.div>
-
         <motion.div
           className="phone-intro__stage"
-          style={{ rotate, scale, y: floatY }}
+          style={{ rotate, scale, y: floatY, opacity: stageOpacity }}
         >
           <motion.div
             className="phone-intro__shadow"

@@ -6,7 +6,7 @@
 
 .phone-intro {
   position: relative;
-  height: 500vh;
+  height: 720vh;
   background: #050507;
   isolation: isolate;
 }
@@ -252,6 +252,81 @@
 
 @media (max-width: 860px) {
   .phone-intro__side { display: none; }
+}
+
+/* ---------------- Hi frame stage (phase 0 — plays, then hands off) -- */
+.phone-intro__hi-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  will-change: transform, opacity;
+  display: grid;
+  place-items: center;
+}
+.phone-intro__hi-canvas {
+  display: block;
+  width: min(70vw, 900px);
+  height: min(70vh, 720px);
+  filter: drop-shadow(0 12px 40px rgba(255, 255, 255, 0.16));
+}
+
+.phone-intro__hi-caption {
+  position: absolute;
+  left: clamp(4rem, 11vw, 12rem);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.7rem;
+  text-align: left;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.phone-intro__hi-caption-kicker {
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 0.7rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+.phone-intro__hi-caption-title {
+  margin: 0;
+  font-family: var(--display, 'Times New Roman', serif);
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(2.8rem, 6vw, 6rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: #fff;
+  text-shadow: 0 4px 32px rgba(255, 255, 255, 0.15);
+}
+.phone-intro__hi-caption-title em {
+  font-style: normal;
+  background: linear-gradient(120deg, #fff 0%, #6a6a78 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.phone-intro__hi-caption-sub {
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 0.6rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+@media (max-width: 720px) {
+  .phone-intro__hi-canvas { width: 92vw; height: 56vh; }
+  .phone-intro__hi-caption {
+    left: 50%;
+    top: 4vh;
+    transform: translateX(-50%);
+    align-items: center;
+    text-align: center;
+  }
 }
 
 /* ---------------- The phone "stage" — what gets transformed -------- */
