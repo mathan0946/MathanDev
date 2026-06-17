@@ -566,10 +566,10 @@
 }
 .phone-intro__site {
   align-items: center;
-  justify-content: center;
-  padding: 0 6%;
+  justify-content: flex-start;
+  padding: 0 6% 0 10%;
   flex-direction: row;
-  gap: 4%;
+  gap: 10%;
 }
 .phone-intro__site-hi {
   flex: 0 0 auto;
